@@ -1,0 +1,184 @@
+{% comment %}
+  Renders product badges (Sale, Sold Out, Low Stock, New, Exclusive, Best Seller)
+  Supports both single badge (for cards) and multiple badges (for product pages)
+
+  Accepts:
+  - product: {Object} Product Liquid object (required)
+  - variant: {Object} Specific variant to check (optional, defaults to selected_or_first_available_variant)
+  - badge_class: {String} Additional CSS classes for the badge (optional)
+  - show_multiple: {Boolean} Whether to show multiple badges or just the first one (default: false)
+
+  Badge Priority (when show_multiple is false):
+  1. Sold Out (when product is unavailable)
+  2. New (from variant metafield custom.custom_badges)
+  3. Exclusive (from variant metafield custom.custom_badges)
+  4. Best Seller (from variant metafield custom.custom_badges)
+  5. Low Stock (when inventory ≤ 10 and managed by Shopify)
+  6. Sale (when compare_at_price > price)
+
+  Custom Badges Metafield:
+  The variant metafield custom.custom_badges should contain values like:
+  - "New"
+  - "Exclusive"
+  - "Best Seller"
+
+  Usage:
+  {% render 'product-badge', product: product %}
+  {% render 'product-badge', product: product, show_multiple: true %}
+  {% render 'product-badge', product: card_product, badge_class: 'badge--bottom-left' %}
+{% endcomment %}
+{%- liquid
+  if variant
+    assign target_variant = variant
+  else
+    assign target_variant = product.selected_or_first_available_variant
+  endif
+
+  assign product_available = product.available
+  assign compare_at_price = product.compare_at_price
+  assign price = product.price
+
+  if variant
+    assign compare_at_price = variant.compare_at_price
+    assign price = variant.price
+  endif
+
+  # Get custom badges from variant metafield
+  assign custom_badges = target_variant.metafields.custom.custom_badges.value
+
+  # Build array of applicable badges
+  assign badge_list = ''
+  assign badge_count = 0
+
+  # Check each badge condition and build list
+  if product_available == false
+    assign badge_list = badge_list | append: 'sold_out,'
+    assign badge_count = badge_count | plus: 1
+  else
+    if custom_badges contains 'New'
+      assign badge_list = badge_list | append: 'new,'
+      assign badge_count = badge_count | plus: 1
+    endif
+    if custom_badges contains 'Exclusive'
+      assign badge_list = badge_list | append: 'exclusive,'
+      assign badge_count = badge_count | plus: 1
+    endif
+    if custom_badges contains 'Best Seller'
+      assign badge_list = badge_list | append: 'best_seller,'
+      assign badge_count = badge_count | plus: 1
+    endif
+    if target_variant.inventory_management == 'shopify' and target_variant.inventory_quantity > 0 and target_variant.inventory_quantity <= 10
+      assign badge_list = badge_list | append: 'low_stock,'
+      assign badge_count = badge_count | plus: 1
+    endif
+    if compare_at_price > price and product_available
+      assign badge_list = badge_list | append: 'sale,'
+      assign badge_count = badge_count | plus: 1
+    endif
+  endif
+
+  # Convert badge list to array
+  assign badges_to_show = badge_list | split: ','
+
+  # Determine how many badges to show
+  if show_multiple
+    assign max_badges = badge_count
+  else
+    assign max_badges = 1
+  endif
+-%}
+
+{%- if badge_count > 0 -%}
+  {%- if show_multiple and badge_count > 1 -%}
+    <span style="white-space: nowrap;">
+  {%- endif -%}
+
+  {%- for badge_type in badges_to_show limit: max_badges -%}
+    {%- unless badge_type == blank -%}
+      {%- case badge_type -%}
+        {%- when 'sold_out' -%}
+          <span
+            class="badge {{ badge_class }} color-{{ settings.sold_out_badge_color_scheme }}"
+            {% if show_multiple and badge_count > 1 and forloop.last == false %}
+              style="margin-right: 4px;"
+            {% endif %}
+          >
+            {%- if settings.sold_out_badge_label != blank -%}
+              {{- settings.sold_out_badge_label -}}
+            {%- else -%}
+              {{- 'products.product.sold_out' | t -}}
+            {%- endif -%}
+          </span>
+        {%- when 'new' -%}
+          <span
+            class="badge {{ badge_class }} color-{{ settings.new_badge_color_scheme }}"
+            {% if show_multiple and badge_count > 1 and forloop.last == false %}
+              style="margin-right: 4px;"
+            {% endif %}
+          >
+            {%- if settings.new_badge_label != blank -%}
+              {{- settings.new_badge_label -}}
+            {%- else -%}
+              New
+            {%- endif -%}
+          </span>
+        {%- when 'exclusive' -%}
+          <span
+            class="badge {{ badge_class }} color-{{ settings.exclusive_badge_color_scheme }}"
+            {% if show_multiple and badge_count > 1 and forloop.last == false %}
+              style="margin-right: 4px;"
+            {% endif %}
+          >
+            {%- if settings.exclusive_badge_label != blank -%}
+              {{- settings.exclusive_badge_label -}}
+            {%- else -%}
+              Exclusive
+            {%- endif -%}
+          </span>
+        {%- when 'best_seller' -%}
+          <span
+            class="badge {{ badge_class }} color-{{ settings.best_seller_badge_color_scheme }}"
+            {% if show_multiple and badge_count > 1 and forloop.last == false %}
+              style="margin-right: 4px;"
+            {% endif %}
+          >
+            {%- if settings.best_seller_badge_label != blank -%}
+              {{- settings.best_seller_badge_label -}}
+            {%- else -%}
+              Best Seller
+            {%- endif -%}
+          </span>
+        {%- when 'low_stock' -%}
+          <span
+            class="badge {{ badge_class }} color-{{ settings.low_stock_badge_color_scheme }}"
+            {% if show_multiple and badge_count > 1 and forloop.last == false %}
+              style="margin-right: 4px;"
+            {% endif %}
+          >
+            {%- if settings.low_stock_badge_label != blank -%}
+              {{- settings.low_stock_badge_label -}}
+            {%- else -%}
+              Low stock
+            {%- endif -%}
+          </span>
+        {%- when 'sale' -%}
+          <span
+            class="badge {{ badge_class }} color-{{ settings.sale_badge_color_scheme }}"
+            {% if show_multiple and badge_count > 1 and forloop.last == false %}
+              style="margin-right: 4px;"
+            {% endif %}
+          >
+            {%- if settings.sale_badge_label != blank -%}
+              {{- settings.sale_badge_label -}}
+            {%- else -%}
+              {{- 'products.product.on_sale' | t -}}
+            {%- endif -%}
+          </span>
+      {%- endcase -%}
+    {%- endunless -%}
+  {%- endfor -%}
+
+  {%- if show_multiple and badge_count > 1 -%}
+    </span>
+  {%- endif -%}
+{%- endif -%}
