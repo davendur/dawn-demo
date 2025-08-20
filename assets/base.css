@@ -1,3 +1,12 @@
+.badge-group-nowrap {
+  white-space: normal;
+}
+
+@media screen and (min-width: 1240px) {
+  .badge-group-nowrap {
+    white-space: nowrap;
+  }
+}
 :root {
   --alpha-button-background: 1;
   --alpha-button-border: 1;
