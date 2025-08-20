@@ -9,18 +9,28 @@
   - show_multiple: {Boolean} Whether to show multiple badges or just the first one (default: false)
 
   Badge Priority (when show_multiple is false):
-  1. Sold Out (when product is unavailable)
-  2. New (from variant metafield custom.custom_badges)
-  3. Exclusive (from variant metafield custom.custom_badges)
-  4. Best Seller (from variant metafield custom.custom_badges)
-  5. Low Stock (when inventory ≤ 10 and managed by Shopify)
-  6. Sale (when compare_at_price > price)
+  1. User Preference (from product metafield custom.badge_display_preference)
+  2. Sold Out (when product is unavailable)
+  3. New (from variant metafield custom.custom_badges)
+  4. Exclusive (from variant metafield custom.custom_badges)
+  5. Best Seller (from variant metafield custom.custom_badges)
+  6. Low Stock (when inventory ≤ 10 and managed by Shopify)
+  7. Sale (when compare_at_price > price)
 
   Custom Badges Metafield:
   The variant metafield custom.custom_badges should contain values like:
   - "New"
   - "Exclusive"
   - "Best Seller"
+
+  Badge Display Preference Metafield:
+  The product metafield custom.badge_display_preference can contain:
+  - "New"
+  - "Best Seller"
+  - "Sale"
+  - "Low Stock"
+  - "Sold Out"
+  - "Exclusive"
 
   Usage:
   {% render 'product-badge', product: product %}
@@ -44,41 +54,82 @@
 
   # Get custom badges from variant metafield
   assign custom_badges = target_variant.metafields.custom.custom_badges.value
+  
+  # Get badge display preference from product metafield
+  assign badge_preference = product.metafields.custom.badge_display_preference.value
 
   # Build array of applicable badges
   assign badge_list = ''
   assign badge_count = 0
+  assign preferred_badge_available = false
 
   # Check each badge condition and build list
   # For sold out, check the specific variant availability, not the whole product
   if target_variant.available == false
     assign badge_list = badge_list | append: 'sold_out,'
     assign badge_count = badge_count | plus: 1
+    if badge_preference == 'Sold Out'
+      assign preferred_badge_available = true
+    endif
   else
     if custom_badges contains 'New'
       assign badge_list = badge_list | append: 'new,'
       assign badge_count = badge_count | plus: 1
+      if badge_preference == 'New'
+        assign preferred_badge_available = true
+      endif
     endif
     if custom_badges contains 'Exclusive'
       assign badge_list = badge_list | append: 'exclusive,'
       assign badge_count = badge_count | plus: 1
+      if badge_preference == 'Exclusive'
+        assign preferred_badge_available = true
+      endif
     endif
     if custom_badges contains 'Best Seller'
       assign badge_list = badge_list | append: 'best_seller,'
       assign badge_count = badge_count | plus: 1
+      if badge_preference == 'Best Seller'
+        assign preferred_badge_available = true
+      endif
     endif
     if target_variant.inventory_management == 'shopify' and target_variant.inventory_quantity > 0 and target_variant.inventory_quantity <= 10
       assign badge_list = badge_list | append: 'low_stock,'
       assign badge_count = badge_count | plus: 1
+      if badge_preference == 'Low Stock'
+        assign preferred_badge_available = true
+      endif
     endif
     if compare_at_price > price and target_variant.available
       assign badge_list = badge_list | append: 'sale,'
       assign badge_count = badge_count | plus: 1
+      if badge_preference == 'Sale'
+        assign preferred_badge_available = true
+      endif
     endif
   endif
 
   # Convert badge list to array
   assign badges_to_show = badge_list | split: ','
+
+  # If single badge mode and user has a preference that's available, prioritize it
+  if show_multiple != true and badge_preference != blank and preferred_badge_available
+    # Create preferred badge array based on preference
+    case badge_preference
+      when 'Sold Out'
+        assign badges_to_show = 'sold_out' | split: ','
+      when 'New'
+        assign badges_to_show = 'new' | split: ','
+      when 'Exclusive'
+        assign badges_to_show = 'exclusive' | split: ','
+      when 'Best Seller'
+        assign badges_to_show = 'best_seller' | split: ','
+      when 'Low Stock'
+        assign badges_to_show = 'low_stock' | split: ','
+      when 'Sale'
+        assign badges_to_show = 'sale' | split: ','
+    endcase
+  endif
 
   # Determine how many badges to show
   if show_multiple
