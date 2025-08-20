@@ -1253,15 +1253,99 @@
         "default": 40
       },
       {
+        "type": "header",
+        "content": "t:settings_schema.badges.settings.header__sale.content"
+      },
+      {
+        "type": "text",
+        "id": "sale_badge_label",
+        "label": "t:settings_schema.badges.settings.sale_badge_label.label",
+        "default": "Sale"
+      },
+      {
         "type": "color_scheme",
         "id": "sale_badge_color_scheme",
         "label": "t:settings_schema.badges.settings.sale_badge_color_scheme.label",
-        "default": "scheme-5"
+        "default": "scheme-3"
+      },
+      {
+        "type": "header",
+        "content": "t:settings_schema.badges.settings.header__sold_out.content"
+      },
+      {
+        "type": "text",
+        "id": "sold_out_badge_label",
+        "label": "t:settings_schema.badges.settings.sold_out_badge_label.label",
+        "default": "Sold Out"
       },
       {
         "type": "color_scheme",
         "id": "sold_out_badge_color_scheme",
         "label": "t:settings_schema.badges.settings.sold_out_badge_color_scheme.label",
+        "default": "scheme-3"
+      },
+      {
+        "type": "header",
+        "content": "t:settings_schema.badges.settings.header__new.content"
+      },
+      {
+        "type": "text",
+        "id": "new_badge_label",
+        "label": "t:settings_schema.badges.settings.new_badge_label.label",
+        "default": "New"
+      },
+      {
+        "type": "color_scheme",
+        "id": "new_badge_color_scheme",
+        "label": "t:settings_schema.badges.settings.new_badge_color_scheme.label",
+        "default": "scheme-3"
+      },
+      {
+        "type": "header",
+        "content": "t:settings_schema.badges.settings.header__exclusive.content"
+      },
+      {
+        "type": "text",
+        "id": "exclusive_badge_label",
+        "label": "t:settings_schema.badges.settings.exclusive_badge_label.label",
+        "default": "Exclusive"
+      },
+      {
+        "type": "color_scheme",
+        "id": "exclusive_badge_color_scheme",
+        "label": "t:settings_schema.badges.settings.exclusive_badge_color_scheme.label",
+        "default": "scheme-3"
+      },
+      {
+        "type": "header",
+        "content": "t:settings_schema.badges.settings.header__best_seller.content"
+      },
+      {
+        "type": "text",
+        "id": "best_seller_badge_label",
+        "label": "t:settings_schema.badges.settings.best_seller_badge_label.label",
+        "default": "Best Seller"
+      },
+      {
+        "type": "color_scheme",
+        "id": "best_seller_badge_color_scheme",
+        "label": "t:settings_schema.badges.settings.best_seller_badge_color_scheme.label",
+        "default": "scheme-3"
+      },
+      {
+        "type": "header",
+        "content": "t:settings_schema.badges.settings.header__low_stock.content"
+      },
+      {
+        "type": "text",
+        "id": "low_stock_badge_label",
+        "label": "t:settings_schema.badges.settings.low_stock_badge_label.label",
+        "default": "Low Stock"
+      },
+      {
+        "type": "color_scheme",
+        "id": "low_stock_badge_color_scheme",
+        "label": "t:settings_schema.badges.settings.low_stock_badge_color_scheme.label",
         "default": "scheme-3"
       }
     ]
