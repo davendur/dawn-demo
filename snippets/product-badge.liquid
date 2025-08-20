@@ -34,7 +34,6 @@
     assign target_variant = product.selected_or_first_available_variant
   endif
 
-  assign product_available = product.available
   assign compare_at_price = product.compare_at_price
   assign price = product.price
 
@@ -51,7 +50,8 @@
   assign badge_count = 0
 
   # Check each badge condition and build list
-  if product_available == false
+  # For sold out, check the specific variant availability, not the whole product
+  if target_variant.available == false
     assign badge_list = badge_list | append: 'sold_out,'
     assign badge_count = badge_count | plus: 1
   else
@@ -71,7 +71,7 @@
       assign badge_list = badge_list | append: 'low_stock,'
       assign badge_count = badge_count | plus: 1
     endif
-    if compare_at_price > price and product_available
+    if compare_at_price > price and target_variant.available
       assign badge_list = badge_list | append: 'sale,'
       assign badge_count = badge_count | plus: 1
     endif
