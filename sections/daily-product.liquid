@@ -1,0 +1,51 @@
+{%- liquid
+  assign product = section.settings.product
+-%}
+
+<div>
+  <img src="{{ product.images.first.src }}" alt="{{  product.images.first.alt }}" width="200" height="200">
+
+  <div class="product-title">
+    {{ product.title }}
+  </div>
+
+  {% render 'price', product: product %}
+
+  <button onclick="addProductToCart({{ product.variants.first.id }})">Add To Cart</button>
+</div>
+
+{% javascript %}
+  function addProductToCart(variantID) {
+    let formData = { items: [{ id: variantID, quantity: 1 }] };
+
+    fetch(window.Shopify.routes.root + 'cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    })
+      .then((response) => {
+        console(response.json());
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Daily Featured Product",
+  "tag": "section",
+  "class": "section section-daily-product",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "t:sections.featured-product.settings.product.label"
+    }
+  ]
+}
+{% endschema %}
