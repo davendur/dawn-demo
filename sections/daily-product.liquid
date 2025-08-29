@@ -19,7 +19,7 @@
   <button onclick="addProductToCart({{ product.variants.first.id }})">Add To Cart</button>
 </div>
 
-{% javascript %}
+<script>
   function addProductToCart(variantID) {
     console.log('Add to cart:', variantID);
     let formData = { items: [{ id: variantID, quantity: 1 }] };
@@ -36,7 +36,7 @@
         console.error('Error:', error);
       });
   }
-{% endjavascript %}
+</script>
 
 {% schema %}
 {
