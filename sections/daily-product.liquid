@@ -3,7 +3,7 @@
 -%}
 
 <div>
-  <img src="{{ product.images.first.src }}" alt="{{  product.images.first.alt }}" width="200" height="200">
+  <img src="{{ product.images.first.src | asset_url }}" alt="{{  product.images.first.alt }}" width="200" height="200">
 
   <div class="product-title">
     {{ product.title }}
